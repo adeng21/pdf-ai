@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@kinde-oss/kinde-auth-nextjs": "^1.8.23",
+    "@prisma/client": "^5.4.2",
     "@radix-ui/react-slot": "^1.0.2",
     "@tailwindcss/typography": "^0.5.10",
     "@tanstack/react-query": "^4.36.1",
@@ -21,6 +22,7 @@
     "clsx": "^2.0.0",
     "lucide-react": "^0.287.0",
     "next": "13.5.4",
+    "prisma": "^5.4.2",
     "react": "^18",
     "react-dom": "^18",
     "tailwind-merge": "^1.14.0",
