@@ -54,24 +54,23 @@ const PdfDocument = ({
           rotate={rotation}
           key={"@" + renderedScale}
         />
-      ) : (
-        <Page
-          width={width ? width : 1}
-          className={cn(isLoading ? "hidden" : "")}
-          pageNumber={currentPage}
-          scale={scale}
-          rotate={rotation}
-          key={"@" + scale}
-          loading={
-            <div className="flex justify-center">
-              <Loader2 className="my-24 h-6 w-6 animate-spin" />
-            </div>
-          }
-          onRenderSuccess={() => {
-            setRenderedScale(scale);
-          }}
-        />
-      )}
+      ) : null}
+      <Page
+        width={width ? width : 1}
+        className={cn(isLoading ? "hidden" : "")}
+        pageNumber={currentPage}
+        scale={scale}
+        rotate={rotation}
+        key={"@" + scale}
+        loading={
+          <div className="flex justify-center">
+            <Loader2 className="my-24 h-6 w-6 animate-spin" />
+          </div>
+        }
+        onRenderSuccess={() => {
+          setRenderedScale(scale);
+        }}
+      />
     </Document>
   );
 };
