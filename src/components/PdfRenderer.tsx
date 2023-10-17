@@ -9,7 +9,6 @@ import {
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
-import { useToast } from "./ui/use-toast";
 import { useResizeDetector } from "react-resize-detector";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -27,6 +26,8 @@ import {
   DropdownMenuContent,
 } from "./ui/dropdown-menu";
 import Simplebar from "simplebar-react";
+import PdfFullscreen from "./PdfFullscreen";
+import PdfDocument from "./PdfDocument";
 
 interface PdfRendererProps {
   url: string;
@@ -37,12 +38,11 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 ).toString();
 
 const PdfRenderer = ({ url }: PdfRendererProps) => {
-  const { toast } = useToast();
   const { width, ref } = useResizeDetector(); // library to resize pdf to fit container
   const [numPages, setNumPages] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [scale, setScale] = useState<number>(1);
-  const [rotation, setRotation] = useState<number>(0); // TODO: implement rotation
+  const [rotation, setRotation] = useState<number>(0);
 
   // validate page number
   const CustomPageValidator = z.object({
@@ -157,6 +157,7 @@ const PdfRenderer = ({ url }: PdfRendererProps) => {
           >
             <RotateCw className="h-4 w-4" />
           </Button>
+          <PdfFullscreen fileUrl={url} />
         </div>
       </div>
 
@@ -166,32 +167,14 @@ const PdfRenderer = ({ url }: PdfRendererProps) => {
         {/* simple bar provides scrolling bars on rescale */}
         <Simplebar autoHide={false} className="max-h-[calc(100vh-10rem)]">
           <div ref={ref}>
-            <Document
-              loading={
-                <div className="flex justify-center">
-                  <Loader2 className="my-24 h-6 w-6 animate-spin" />
-                </div>
-              }
-              onLoadError={() => {
-                toast({
-                  title: "Error loading PDF",
-                  description: "Please try again later",
-                  variant: "destructive",
-                });
-              }}
-              onLoadSuccess={({ numPages }) => {
-                setNumPages(numPages);
-              }}
-              file={url}
-              className="max-h-full"
-            >
-              <Page
-                width={width ? width : 1}
-                pageNumber={currentPage}
-                scale={scale}
-                rotate={rotation}
-              />
-            </Document>
+            <PdfDocument
+              currentPage={currentPage}
+              url={url}
+              scale={scale}
+              rotation={rotation}
+              width={width}
+              setNumPages={setNumPages}
+            />
           </div>
         </Simplebar>
       </div>
