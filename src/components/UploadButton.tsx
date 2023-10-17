@@ -37,6 +37,13 @@ const UploadDropzone = () => {
     }, 500);
     return interval;
   };
+  const showErrorToast = () => {
+    toast({
+      title: "Something went wrong",
+      description: "Please try again later",
+      variant: "destructive",
+    });
+  };
 
   return (
     <Dropzone
@@ -49,21 +56,13 @@ const UploadDropzone = () => {
         const res = await startUpload(acceptedFile);
 
         if (!res) {
-          return toast({
-            title: "Something went wrong",
-            description: "Please try again later",
-            variant: "destructive",
-          });
+          return showErrorToast();
         }
 
         const [fileResponse] = res;
         const key = fileResponse?.key;
         if (!key) {
-          return toast({
-            title: "Something went wrong",
-            description: "Please try again later",
-            variant: "destructive",
-          });
+          return showErrorToast();
         }
 
         clearInterval(progressInterval);
