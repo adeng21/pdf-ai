@@ -43,6 +43,8 @@ const PdfRenderer = ({ url }: PdfRendererProps) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [scale, setScale] = useState<number>(1);
   const [rotation, setRotation] = useState<number>(0);
+  const [renderedScale, setRenderedScale] = useState<number | null>(null);
+  const isLoading = renderedScale !== scale;
 
   // validate page number
   const CustomPageValidator = z.object({
@@ -174,6 +176,9 @@ const PdfRenderer = ({ url }: PdfRendererProps) => {
               rotation={rotation}
               width={width}
               setNumPages={setNumPages}
+              isLoading={isLoading}
+              renderedScale={renderedScale}
+              setRenderedScale={setRenderedScale}
             />
           </div>
         </Simplebar>
