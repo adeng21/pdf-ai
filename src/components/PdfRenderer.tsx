@@ -1,5 +1,11 @@
 "use client";
-import { ChevronDown, ChevronUp, Loader2, Search } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Loader2,
+  RotateCw,
+  Search,
+} from "lucide-react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
@@ -36,6 +42,7 @@ const PdfRenderer = ({ url }: PdfRendererProps) => {
   const [numPages, setNumPages] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [scale, setScale] = useState<number>(1);
+  const [rotation, setRotation] = useState<number>(0); // TODO: implement rotation
 
   // validate page number
   const CustomPageValidator = z.object({
@@ -141,12 +148,22 @@ const PdfRenderer = ({ url }: PdfRendererProps) => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          <Button
+            aria-label="rotate 90 degrees"
+            variant="ghost"
+            onClick={() => {
+              setRotation((prev) => prev + 90);
+            }}
+          >
+            <RotateCw className="h-4 w-4" />
+          </Button>
         </div>
       </div>
 
       {/* PDF document */}
 
       <div className="flex-1 w-full max-h-screen">
+        {/* simple bar provides scrolling bars on rescale */}
         <Simplebar autoHide={false} className="max-h-[calc(100vh-10rem)]">
           <div ref={ref}>
             <Document
@@ -172,6 +189,7 @@ const PdfRenderer = ({ url }: PdfRendererProps) => {
                 width={width ? width : 1}
                 pageNumber={currentPage}
                 scale={scale}
+                rotate={rotation}
               />
             </Document>
           </div>
