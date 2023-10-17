@@ -8,7 +8,12 @@ import { useResizeDetector } from "react-resize-detector";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { set } from "date-fns";
+import { number } from "zod";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { cn } from "@/lib/utils";
 
 interface PdfRendererProps {
   url: string;
@@ -23,6 +28,39 @@ const PdfRenderer = ({ url }: PdfRendererProps) => {
   const { width, ref } = useResizeDetector();
   const [numPages, setNumPages] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState<number>(1);
+
+  // validate page number
+  const CustomPageValidator = z.object({
+    page: z
+      .string()
+      .refine((val) => Number(val) > 0 && Number(val) <= numPages!),
+  });
+
+  type TCustomPageValidator = z.infer<typeof CustomPageValidator>;
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+  } = useForm<TCustomPageValidator>({
+    defaultValues: {
+      page: "1",
+    },
+    resolver: zodResolver(CustomPageValidator), // this resolver links the validator to the form
+  });
+
+  const handlePageSubmit = ({ page }: TCustomPageValidator) => {
+    setCurrentPage(Number(page));
+    setValue("page", String(page));
+  };
+  const goBackPage = (page: number) => {
+    return page - 1 > 1 ? page - 1 : 1;
+  };
+  const goNextPage = (page: number) => {
+    return page + 1 <= numPages ? page + 1 : page;
+  };
+
   return (
     <div className="w-full rounded-md bg-white shadow flex flex-col items-center">
       <div className="h-14 w-full border-b border-zinc-200 flex items-center justify-between px-2">
@@ -32,15 +70,25 @@ const PdfRenderer = ({ url }: PdfRendererProps) => {
             disabled={currentPage <= 1}
             aria-label="previous page"
             onClick={() => {
-              setCurrentPage((prev) => {
-                return prev - 1 > 1 ? prev - 1 : 1;
-              });
+              setCurrentPage((prev) => goBackPage(prev));
+              setValue("page", String(goBackPage(currentPage)));
             }}
           >
             <ChevronDown className="h-4 w-4" />
           </Button>
           <div className="flex items-center gap-1.5">
-            <Input className="w-12 h-8" />
+            <Input
+              {...register("page")} // this library handles the input value updates
+              className={cn(
+                "w-12 h-8",
+                errors.page && "focus-visible:ring-red-500"
+              )}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSubmit(handlePageSubmit)();
+                }
+              }}
+            />
             <p className="text-zinc-700 text-sm space-x-1">
               <span>/</span>
               <span>{numPages ?? "x"}</span>
@@ -51,9 +99,8 @@ const PdfRenderer = ({ url }: PdfRendererProps) => {
             aria-label="next page"
             disabled={numPages === undefined || currentPage === numPages}
             onClick={() => {
-              setCurrentPage((prev) => {
-                return prev + 1 <= numPages ? prev + 1 : prev;
-              });
+              setCurrentPage((prev) => goNextPage(prev));
+              setValue("page", String(goNextPage(currentPage)));
             }}
           >
             <ChevronUp className="h-4 w-4" />
