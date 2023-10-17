@@ -1,6 +1,7 @@
 import { Document, Page } from "react-pdf";
 import { Loader2 } from "lucide-react";
 import { useToast } from "./ui/use-toast";
+import { cn } from "@/lib/utils";
 interface PdfDocumentProps {
   currentPage: number;
   scale: number;
@@ -56,6 +57,7 @@ const PdfDocument = ({
       ) : (
         <Page
           width={width ? width : 1}
+          className={cn(isLoading ? "hidden" : "")}
           pageNumber={currentPage}
           scale={scale}
           rotate={rotation}
