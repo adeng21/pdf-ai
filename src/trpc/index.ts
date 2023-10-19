@@ -83,7 +83,6 @@ export const appRouter = router({
 
     if(messages.length > limit) {
       const nextItem = messages.pop()
-      console.log(`message length greater than limit, next item is ${nextItem?.id}`)
       nextCursor = nextItem?.id
     }
 
