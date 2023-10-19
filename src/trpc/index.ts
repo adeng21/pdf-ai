@@ -45,21 +45,27 @@ export const appRouter = router({
     return { status: file.uploadStatus}
 
   }),
-  getFileMessages: privateProcedure.input(z.object({
-    limit: z.number().min(1).max(100).nullish(),
-    cursor: z.string().nullish(), 
-    fileId: z.string()}
-  )).query(async ({ ctx, input })=>{
+  getFileMessages: privateProcedure.input(
+    z.object({
+      limit: z.number().min(1).max(100).nullish(),
+      cursor: z.string().nullish(), 
+      fileId: z.string()
+    })
+    )
+    .query(async ({ ctx, input })=>{
     const {userId} = ctx
     const { cursor, fileId } = input
     const limit = input.limit ?? INFINITE_QUERY_LIMIT 
     const file = await db.file.findFirst({where: { id: fileId, userId }})
     if (!file) throw new TRPCError({ code: 'NOT_FOUND' })
+    console.log (`limit of messages: ${limit}`)
+
+    console.log(`getting messages from cursor ${cursor}`)
 
     const messages = await db.message.findMany({
       take: limit + 1, // extra message is cursor location
       where: {
-        fileId: file.id,
+        fileId,
       },
       orderBy: {
         createdAt: 'desc',
@@ -77,6 +83,7 @@ export const appRouter = router({
 
     if(messages.length > limit) {
       const nextItem = messages.pop()
+      console.log(`message length greater than limit, next item is ${nextItem?.id}`)
       nextCursor = nextItem?.id
     }
 

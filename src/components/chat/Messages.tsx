@@ -3,8 +3,10 @@ import { INFINITE_QUERY_LIMIT } from "@/config/infinite-query";
 import { Loader2, MessageSquare } from "lucide-react";
 import Skeleton from "react-loading-skeleton";
 import Message from "./Message";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { ChatContext } from "./ChatContext";
+import { useIntersection } from "@mantine/hooks";
+import { useRef } from "react";
 
 interface MessagesProps {
   fileId: string;
@@ -19,9 +21,8 @@ const Messages = ({ fileId }: MessagesProps) => {
         limit: INFINITE_QUERY_LIMIT,
       },
       {
-        getNextPageParam: (lastPage) => {
-          lastPage?.nextCursor;
-        },
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
+
         keepPreviousData: true,
       }
     );
@@ -41,8 +42,23 @@ const Messages = ({ fileId }: MessagesProps) => {
     ...messages,
   ];
 
+  const lastMessageRef = useRef<HTMLDivElement>(null);
+
+  //detect if at top of page, to fetch more messages
+  const { ref, entry } = useIntersection({
+    root: lastMessageRef.current,
+    threshold: 1,
+  });
+
+  // similar to componentDidUpdate - perform side effects
+  useEffect(() => {
+    if (entry?.isIntersecting) {
+      fetchNextPage();
+    }
+  }, [entry, fetchNextPage]);
+
   return (
-    <div className="flex max-h-[calc(100vh-3.5rem-7rem) border-zinc-200 flex-1 flex-col-reverse gap-4 p-3 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch">
+    <div className="flex max-h-[calc(100vh-3.5rem-7rem)] border-zinc-200 flex-1 flex-col-reverse gap-4 p-3 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch">
       {combinedMessages && combinedMessages.length > 0 ? (
         combinedMessages.map((message, idx) => {
           const isNextMessageSamePerson =
@@ -52,6 +68,7 @@ const Messages = ({ fileId }: MessagesProps) => {
           if (idx === combinedMessages.length - 1) {
             return (
               <Message
+                ref={ref}
                 key={message.id}
                 message={message}
                 isNextMessageSamePerson={isNextMessageSamePerson}
