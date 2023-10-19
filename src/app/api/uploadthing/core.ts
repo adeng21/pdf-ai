@@ -57,7 +57,7 @@ export const ourFileRouter = {
           pageLevelDocs, 
           embeddings, {
             pineconeIndex,
-            // namespace: createdFile.id 
+            // namespace: createdFile.id namespace not available on free plan so disabling it for now
           }
         )
 
