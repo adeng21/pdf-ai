@@ -32,10 +32,11 @@ import PdfDocument from "./PdfDocument";
 interface PdfRendererProps {
   url: string;
 }
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.min.js",
-  import.meta.url
-).toString();
+// pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+//   "pdfjs-dist/build/pdf.worker.min.js",
+//   import.meta.url
+// ).toString();
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 
 const PdfRenderer = ({ url }: PdfRendererProps) => {
   const { width, ref } = useResizeDetector(); // library to resize pdf to fit container
