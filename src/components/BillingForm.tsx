@@ -12,6 +12,7 @@ import {
 } from "./ui/card";
 import { Button } from "./ui/button";
 import { Loader2 } from "lucide-react";
+import { format } from "util";
 
 interface BillingFormProps {
   subscriptionPlan: Awaited<ReturnType<typeof getUserSubscriptionPlan>>;
@@ -61,7 +62,12 @@ const BillingForm = ({ subscriptionPlan }: BillingFormProps) => {
                 : "Upgrade to Pro"}
             </Button>
             {subscriptionPlan.isSubscribed ? (
-              <p className="rounded-full text-xs font-medium"></p>
+              <p className="rounded-full text-xs font-medium">
+                {subscriptionPlan.isCanceled
+                  ? "Your plan will be canceled on "
+                  : "Your plan will renew on "}{" "}
+                {format(subscriptionPlan.stripeCurrentPeriodEnd!, "dd.MM.yyyy")}
+              </p>
             ) : null}
           </CardFooter>
         </Card>
